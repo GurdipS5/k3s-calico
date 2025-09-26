@@ -1,29 +1,30 @@
 # BGP Cluster Configuration
 ---
-apiVersion: cilium.io/v2
+apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPClusterConfig
 metadata:
   name: bgp-opnsense-cluster
 spec:
   nodeSelector:
-    matchLabels: {}  # apply to all nodes
-  bgpInstances:
-  - name: "main"
-    localASN: 65552
-    peers:
-    - name: "opnsense-peer"
-      peerConfigRef:
-        name: "opnsense-peer-config"
+    matchLabels: {} # apply to all nodes
+  localASN: 65552
+  peers:
+  - name: opnsense-peer
+    peerASN: 65551
+    peerAddress: 10.0.0.111
+    peerConfigRef:
+      name: opnsense-peer-config
 
 # BGP Peer Configuration  
 ---
-apiVersion: cilium.io/v2
+apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPPeerConfig
 metadata:
   name: opnsense-peer-config
 spec:
-  peerAddress: 10.0.0.111
-  peerASN: 65551
+  transport:
+    localPort: 179
+    peerPort: 179
   families:
   - afi: ipv4
     safi: unicast
@@ -32,7 +33,7 @@ spec:
 
 # BGP Advertisement Configuration
 ---
-apiVersion: cilium.io/v2
+apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPAdvertisement
 metadata:
   name: bgp-loadbalancer-ads
@@ -43,4 +44,4 @@ spec:
       addresses:
       - LoadBalancerIP
     selector:
-      matchLabels: {}  # advertise all LoadBalancer services
+      matchLabels: {} # advertise all LoadBalancer services
