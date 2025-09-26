@@ -1,16 +1,46 @@
+# BGP Cluster Configuration
+---
 apiVersion: cilium.io/v2
-kind: CiliumBGPPeeringPolicy
+kind: CiliumBGPClusterConfig
 metadata:
-  name: bgp-opnsense
-  namespace: kube-system
+  name: bgp-opnsense-cluster
 spec:
   nodeSelector:
     matchLabels: {}  # apply to all nodes
-  virtualRouters:
-  - localASN: 65552             # ASN for your k3s cluster
-    exportPodCIDR: false        # don’t export pod CIDRs unless you want that
-    neighbors:
-    - peerAddress: 10.0.0.111/32 # OPNsense LAN IP
-      peerASN: 65551              # ASN of OPNsense
-    serviceSelector:
-      matchLabels: {}            # advertise all LoadBalancer services
+  bgpInstances:
+  - name: "main"
+    localASN: 65552
+    peers:
+    - name: "opnsense-peer"
+      peerConfigRef:
+        name: "opnsense-peer-config"
+
+# BGP Peer Configuration  
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPPeerConfig
+metadata:
+  name: opnsense-peer-config
+spec:
+  peerAddress: 10.0.0.111
+  peerASN: 65551
+  families:
+  - afi: ipv4
+    safi: unicast
+    advertisements:
+      matchLabels: {}
+
+# BGP Advertisement Configuration
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: bgp-loadbalancer-ads
+spec:
+  advertisements:
+  - advertisementType: "Service"
+    service:
+      addresses:
+      - LoadBalancerIP
+    selector:
+      matchLabels: {}  # advertise all LoadBalancer services
