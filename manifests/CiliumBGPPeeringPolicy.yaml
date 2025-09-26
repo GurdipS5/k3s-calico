@@ -1,0 +1,15 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: bgp-opnsense
+spec:
+  nodeSelector:
+    matchLabels: {}  # apply to all nodes
+  virtualRouters:
+  - localASN: 64512             # ASN for your k3s cluster
+    exportPodCIDR: false        # don’t export pod CIDRs unless you want that
+    neighbors:
+    - peerAddress: 192.168.1.1/32 # OPNsense LAN IP
+      peerASN: 64513              # ASN of OPNsense
+    serviceSelector:
+      matchLabels: {}            # advertise all LoadBalancer services
