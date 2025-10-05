@@ -5,4 +5,4 @@ metadata:
   name: service-pool
 spec:
   cidrs:
-    - cidr: 192.168.142.0/24 # change this!
+    - cidr: 10.0.192.0/20 # change this!
