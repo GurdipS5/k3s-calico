@@ -4,5 +4,5 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: service-pool
 spec:
-  cidrs:
-    - cidr: 10.0.192.0/20 # change this!
+  blocks:
+    - cidr: 10.1.128.0/20
